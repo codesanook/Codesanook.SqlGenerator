@@ -36,7 +36,7 @@ $databaseUserPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAut
 $connectionString = "Server=localhost;Database=CodeSanook;User Id=sa; Password=$databaseUserPassword;"
 $databaseType = "SqlServer" 
 $filePath = "./script.sql" 
-Remove-Item -Path $filePath -Force 
+Remove-Item -Path $filePath -Force -ErrorAction Ignore
 
 $query = "SELECT * FROM Users"
 $exportTable = "Users"

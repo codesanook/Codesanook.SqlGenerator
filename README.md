@@ -1,14 +1,15 @@
 
-# Requirements, before we can start, you need to have the following software installed on your computer 
+## Requirements
+Before we can start, you need to have the following software installed on your computer 
 * GIT client, you can down from [http://gitforwindows.org/](http://gitforwindows.org/) and install.
 * MS Build 2017, you can install with **vs_BuildTools.exe**.
 * PowerShell
 * .NET Framework developer package, you can install with  
 
 
-# How to use Export-SqlQuery
+## How to use Export-SqlQuery.ps1	
 
-## clone the project (only for the first time) 
+## Clone the project (only for the first time) 
 Lanuch PowerShell console with adminsitrator permission.
 CD to a folder that you want to store the project files.
 
@@ -40,11 +41,29 @@ run
 Check if you have a script.sql that constains multiple insert statements.  
 
 
-TO DO
+# Examples
 
-[] support SQL Server
-[] support MySQL
-[] library (DLL)
-[] SQL parser to automatic detect an exported table from a query
-[] Orchard plugin
-[] Export create statement with NHibernate enitity classs
+
+## Example of a demo table schema  
+```
+CREATE TABLE [dbo].[Users](
+	[Id] [uniqueidentifier] NOT NULL PRIMARY KEY,
+	[FirstName] [nvarchar](50) NOT NULL,
+	[LastName] [nvarchar](50) NOT NULL,
+	[DateOfBirth] [datetime] NULL,
+	[Checked] [bit] NULL)
+```
+
+## Example of SQL query
+```
+SELECT * FROM Users
+```
+
+# TO DO
+
+* [x] support SQL Server
+* [ ] support MySQL
+* [ ] Make a class library (DLL)
+* [ ] SQL parser to automatic detect an exported table from a query
+* [ ] Orchard plug in
+* [ ] Export create statement with NHibernate Entity class
