@@ -240,3 +240,8 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+
+# not include generated SQL script
+script.sql
+
+**/*.swp
