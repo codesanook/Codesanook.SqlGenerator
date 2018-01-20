@@ -69,6 +69,7 @@ INSERT INTO [Users] ([Id], [FirstName], [LastName], [DateOfBirth], [Checked])
 # TO DO
 
 * [x] support SQL Server
+* [ ] option to allow inserting auto increment
 * [ ] support MySQL
 * [ ] Not sure about maximum rows can be exported because everything is in memory now 
 * [ ] Make a class library (DLL)
