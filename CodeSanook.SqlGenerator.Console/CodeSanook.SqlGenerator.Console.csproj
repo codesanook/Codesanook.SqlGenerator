@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="build.ps1" />
     <None Include="Export-SqlQuery.ps1" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -93,4 +94,9 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Target Name="Clean">
+    <RemoveDir Directories="$(OutputPath)" />
+    <Message Text="OutputPath = $(OutputPath)" />
+    <Message Text="MSBuildToolsPath = $(MSBuildToolsPath)" />
+  </Target>
 </Project>
