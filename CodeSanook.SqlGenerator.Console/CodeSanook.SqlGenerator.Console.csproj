@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Build-Project.ps1" />
     <None Include="Export-SqlQuery.ps1" />
     <None Include="packages.config" />
   </ItemGroup>
