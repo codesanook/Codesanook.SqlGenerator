@@ -59,10 +59,17 @@ CREATE TABLE [dbo].[Users](
 SELECT * FROM Users
 ```
 
+```
+INSERT INTO [Users] ([Id], [FirstName], [LastName], [DateOfBirth], [Checked])
+ VALUES 
+('efef279a-7633-4ecd-aa30-dbf8f924aac1', 'AAron', 'Amm', '2018-01-20 09:30:00', 1)
+```
+
 # TO DO
 
 * [x] support SQL Server
 * [ ] support MySQL
+* [ ] Not sure about maximum rows can be exported because everything is in memory now 
 * [ ] Make a class library (DLL)
 * [ ] SQL parser to automatic detect an exported table from a query
 * [ ] Orchard plug in
