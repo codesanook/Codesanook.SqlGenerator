@@ -59,6 +59,7 @@ CREATE TABLE [dbo].[Users](
 SELECT * FROM Users
 ```
 
+## Example of exported insert statement (contents in script.sql)
 ```
 INSERT INTO [Users] ([Id], [FirstName], [LastName], [DateOfBirth], [Checked])
  VALUES 
