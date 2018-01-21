@@ -1,3 +1,34 @@
+﻿## Use case
+* You want to reproduce some errors that happened on a production.
+* Production database is huge and it is hard to restore from a backup. 
+* To copy data from a server database to developer machine is very boring job.
+* Most tool I found only support exporting to text file, excel file, or some Wizard UI.   
+* You can use this tool (Export-SqlQuery.ps1 or CodeSanook.SqlGenerator.Console.exe) 
+to export your SQL query result to a set of insert statement.
+* Export-SqlQuery.ps1 use  CodeSanook.SqlGenerator.Console.exe for preparing multiple query and create 
+SQL script file  
+* You can use "CodeSanook.SqlGenerator.Console.exe" with other programming language/framework e.g. Java,
+NodeJS, Python. This is because CodeSanook.SqlGenerator.Console.exe is a console application.
+* The program can only use with Windows client now. 
+
+## Use case in Thai language
+* ครื่องมือสำหรับ export SQL query to insert statement ครับ 
+* สำหรับท่านใดที่ต้องการ export SQL query select statement เพื่อดึงข้อมูลบางส่วนจาก production database
+แล้วสร้าง insert statement ให้โดยอัตโนมัติ 
+* ตัวอย่างเช่น database ใน production ใหญ่มาก แต่เราต้องการข้อมูลเพียงบางส่วน เช่นเฉพาะ data ที่เกี่ยวข้องกับ user จำนวนหนึ่ง
+* เราก็ทำการสร้าง select statment ของข้อมูลที่เกี่ยวข้องทั้งหมด ตัว tool (Export-SqlQuery.ps1 หรือ CodeSanook.SqlGenerator.Console.exe)
+ก็จะสร้าง insert statment ให้เราเอาไปใช้งานได้เลยครับ เช่น นำไป execute ใน develop machine 
+* github project URL [https://github.com/aaronamm/CodeSanook.SqlGenerator.Console](https://github.com/aaronamm/CodeSanook.SqlGenerator.Console)
+
+
+## Program language/Framework used in the tool 
+* C# 4.6.1 .NET Standard  
+* PowerShell 
+* MS Build 
+* Git Client [http://gitforwindows.org/](http://gitforwindows.org/)
+* NHibernate 
+* FluentNHibernate
+* SQL Server Express (free edition)
 
 ## Requirements
 Before we can start, you need to have the following software installed on your computer 
@@ -10,7 +41,7 @@ Before we can start, you need to have the following software installed on your c
 ## How to use Export-SqlQuery.ps1	
 
 ## Clone the project (only for the first time) 
-Lanuch PowerShell console with adminsitrator permission.
+Launch PowerShell console with administrator permission.
 CD to a folder that you want to store the project files.
 
 use git command
@@ -25,7 +56,12 @@ cd CodeSanook.SqlGenerator.Console\CodeSanook.SqlGenerator.Console
 ```
 
 ## Build the project (only the first time and when you update source codes)
-excute PowerShellFile to build a project
+Temporary allow ExecutionPolicy to run PowerShell script in the project 
+```
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted
+```
+
+execute PowerShellFile to build a project
 ```
 .\Build-Project.ps1
 ```
@@ -38,7 +74,7 @@ run
 .\Export-SqlQuery.ps1
 ```	
 
-Check if you have a script.sql that constains multiple insert statements.  
+Check if you have a script.sql that contains multiple insert statements.  
 
 
 # Examples
@@ -69,7 +105,9 @@ INSERT INTO [Users] ([Id], [FirstName], [LastName], [DateOfBirth], [Checked])
 # TO DO
 
 * [x] support SQL Server
-* [ ] option to allow inserting auto increment
+* [x] PowerShell Script for working with multiple SQL Query
+* [x] MS Build script for easy deployment
+* [ ] option to allow inserting auto increment ID
 * [ ] support MySQL
 * [ ] Not sure about maximum rows can be exported because everything is in memory now 
 * [ ] Make a class library (DLL)
