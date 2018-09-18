@@ -20,6 +20,12 @@ NodeJS, Python. This is because CodeSanook.SqlGenerator.Console.exe is a console
 ก็จะสร้าง insert statment ให้เราเอาไปใช้งานได้เลยครับ เช่น นำไป execute ใน develop machine 
 * github project URL [https://github.com/aaronamm/CodeSanook.SqlGenerator.Console](https://github.com/aaronamm/CodeSanook.SqlGenerator.Console)
 
+## Benefit and motivation
+* Work with any target columns order or missing columns
+* Create multiple statement into on file and apply once
+* Insert to a correct order of dependency, no need to drop constraints
+* work with multiple database type, SqlServer, MySQL
+* Not require any UI tool, e.g. SSMS
 
 ## Program language/Framework used in the tool 
 * C# 4.6.1 .NET Standard  
