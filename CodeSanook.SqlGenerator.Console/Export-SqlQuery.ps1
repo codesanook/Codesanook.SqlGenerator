@@ -28,33 +28,40 @@ function Export-SqlQuery {
     Invoke-Expression $command | Out-File -FilePath $filePath -Append
 }
 
+function Get-ConnectionString{
+    param(
+        [Parameter(Mandatory = $True)] [string] $Server,
+        [Parameter(Mandatory = $True)] [string] $Database
+    )
 
-if ($Password) {
-    #decrypt input password
-    $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($Password)
-    $databaseUserPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+    if ($Password) {
+        #decrypt input password
+        $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($Password)
+        $databaseUserPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+        $connectionString = "Server=$Server;Database=$Database;User Id=sa; Password=$databaseUserPassword;"
+    }
+    else {
+        #Trusted Connection Windows user login
+        $connectionString = "Server=$Server;Database=$Database;Trusted_Connection=True";
+    }
 
-    # To do, change your configuration and query
-    $connectionString = "Server=$server;Database=$database;User Id=sa; Password=$databaseUserPassword;"
+    $connectionString
 }
-else {
-    #Trusted Connection Windows user login
-    $connectionString = "Server=$server;Database=$database;Trusted_Connection=True";
-}
-
 
 #Begin of using a script
-
-$databaseType = "SqlServer" 
-$database = "User"
+$database = "testdb"
 $server = ".\"
+$connectionString = Get-ConnectionString -Server $server -Database $database
+$databaseType = "SqlServer" 
 
 $fileOutputPath = "./script.sql" 
-Remove-Item -Path $filePath -Force -ErrorAction Ignore
+Remove-Item -Path $fileOutputPath -Force -ErrorAction Ignore
 
-$query = "SELECT * FROM Users"
+ # Get booing result items
+$query = @"
+    SELECT * FROM Users
+"@
 $exportTable = "Users"
-# export from query 1
-
 Export-SqlQuery -ConnectionString $connectionString -DatabaseType $databaseType -Query $query -ExportTable $exportTable -FilePath $fileOutputPath
-"successfully"
+
+"Successfully"

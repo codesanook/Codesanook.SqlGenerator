@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace CodeSanook.SqlGenerator.Console
 {
     //credit https://adrianphinney.com/post/18900251364/nhibernate-raw-sql-and-dynamic-result-sets
-    class NhTransformers
+    public class NhTransformers
     {
         public static readonly IResultTransformer ExpandoObject;
 

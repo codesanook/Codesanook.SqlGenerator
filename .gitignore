@@ -247,3 +247,4 @@ script.sql
 **/*.swp
 
 Export-SqlQuery-Live.ps1
+Export-SqlQuery-*

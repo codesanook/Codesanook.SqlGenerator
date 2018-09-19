@@ -9,10 +9,10 @@ using System.Text;
 
 namespace CodeSanook.SqlGenerator.Console
 {
-    class Program
+    public class Program
     {
         //https://stackoverflow.com/questions/10704462/how-can-i-have-nhibernate-only-generate-the-sql-without-executing-it
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
 
             Parser.Default.ParseArguments<ExportOptions>(args)
