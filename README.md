@@ -1,4 +1,6 @@
-﻿## Use case
+﻿![sql logo](https://github.com/aaronamm/CodeSanook.SqlGenerator.Console/blob/master/sql.png)
+
+## Use case
 * You want to reproduce some errors that happened on a production.
 * Production database is huge and it is hard to restore from a backup. 
 * To copy data from a server database to developer machine is very boring job.
