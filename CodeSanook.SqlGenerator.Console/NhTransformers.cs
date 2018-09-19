@@ -1,12 +1,7 @@
 ﻿using NHibernate;
 using NHibernate.Transform;
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CodeSanook.SqlGenerator.Console
 {
@@ -22,10 +17,7 @@ namespace CodeSanook.SqlGenerator.Console
 
         private class ExpandoObjectResultSetTransformer : IResultTransformer
         {
-            public IList TransformList(IList collection)
-            {
-                return collection;
-            }
+            public IList TransformList(IList collection) => collection;
 
             public object TransformTuple(object[] tuple, string[] aliases)
             {
@@ -45,11 +37,9 @@ namespace CodeSanook.SqlGenerator.Console
 
     public static class NHibernateExtensions
     {
-        public static IList<IDictionary<string,object>> Dictionary(this IQuery query)
-        {
-            return query.SetResultTransformer(NhTransformers.ExpandoObject)
-                        .List<IDictionary<string,object>>();
-        }
-
+        public static IList<IDictionary<string, object>> Dictionary(this IQuery query)
+            => query
+                .SetResultTransformer(NhTransformers.ExpandoObject)
+                .List<IDictionary<string, object>>();
     }
 }

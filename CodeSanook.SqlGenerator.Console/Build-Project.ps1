@@ -21,19 +21,16 @@ function Invoke-MsBuild {
 	Invoke-Expression $command
 }
 
-
 #restore nuget
 ..\nuget restore "..\CodeSanook.SqlGenerator.Console.sln"
-
 
 $exePath = "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin\amd64\MSBuild.exe"
 $projectFile = "CodeSanook.SqlGenerator.Console.csproj"
 $configuration = "Debug"
 $outputPath = "./bin/debug"
+
 $target ="clean"
-
 Invoke-MsBuild -ExePath $exePath -ProjectFile $projectFile -OutputPath $outputPath -Configuration $configuration -Target $target
-
 
 $target ="build"
 Invoke-MsBuild -ExePath $exePath -ProjectFile $projectFile -OutputPath $outputPath -Configuration $configuration -Target $target
