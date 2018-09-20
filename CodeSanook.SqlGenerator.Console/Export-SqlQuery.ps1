@@ -7,22 +7,35 @@ function Export-SqlQuery {
         [Parameter(Mandatory = $True)] [string] $ConnectionString, 
         [Parameter(Mandatory = $True)] [string] $DatabaseType, 
         [Parameter(Mandatory = $True)] [string] $Query, 
-        [Parameter(Mandatory = $True)] [string] $ExportTable,
+        [Parameter(Mandatory = $false)] [string] $ExportTable = "",
+        [Parameter(Mandatory = $false)] [string] $Template = "",
         [Parameter(Mandatory = $True)] [string] $filePath
     )
 
     $exePath = "./bin/debug/CodeSanook.SqlGenerator.Console.exe"
-    $command = '& "{0}" export `
+    $commandTemplate = 
+        '& "{0}" export `
 		--connection-string "{1}" `
 		--database-type "{2}" `
-		--query "{3}" `
-		--table "{4}" '`
+		--query "{3}" ' 
+
+    if($ExportTable){
+        $commandTemplate += ' --table "{4}" '
+        $optionalValue = $ExportTable
+    }
+    if($Template){
+        $commandTemplate +=  ' --template "{4}" '
+        $optionalValue = $template
+    }
+
+    $command = 
+        $commandTemplate `
         -f `
         $ExePath, `
         $ConnectionString, `
         $DatabaseType, `
         $Query, `
-        $ExportTable
+        $optionalValue
 
     # export SQL query to a file  
     Invoke-Expression $command | Out-File -FilePath $filePath -Append
@@ -57,11 +70,26 @@ $databaseType = "SqlServer"
 $fileOutputPath = "./script.sql" 
 Remove-Item -Path $fileOutputPath -Force -ErrorAction Ignore
 
- # Get booing result items
+#Get Users items
 $query = @"
     SELECT * FROM Users
 "@
 $exportTable = "Users"
 Export-SqlQuery -ConnectionString $connectionString -DatabaseType $databaseType -Query $query -ExportTable $exportTable -FilePath $fileOutputPath
 
+ # Alter Users table 
+$query = @"
+    SELECT 
+    'Users' AS TableName,  --c0, v0
+    Money  --c1, v1
+    FROM Users
+"@
+# template support these placeholder
+# c0, c1, c2, ... for column index start at index 0
+# v0, v1, v2, ... for column value start at index 0
+$template = @"
+    ALTER TABLE [v0] 
+    ALTER COLUMN [c1] DECIMAL(18, 4)
+"@
+Export-SqlQuery -ConnectionString $connectionString -DatabaseType $databaseType -Query $query -Template $template -FilePath $fileOutputPath 
 "Successfully"

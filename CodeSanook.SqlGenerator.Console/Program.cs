@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace CodeSanook.SqlGenerator.Console
 {
@@ -16,7 +17,13 @@ namespace CodeSanook.SqlGenerator.Console
         {
             Parser.Default
                 .ParseArguments<ExportOptions>(args)
-                .MapResult(opts => ExportSqlInsert(opts), errs => 1);
+                .MapResult(
+                    opts => ExportSqlInsert(opts),
+                    errs =>
+                    {
+                        return 1;
+                    }
+                );
         }
 
         private static int ExportSqlInsert(ExportOptions options)
@@ -29,36 +36,74 @@ namespace CodeSanook.SqlGenerator.Console
                 queryResult = query.Dictionary();
             }
 
-            if (queryResult.Any())
-            {
-                var insertTemplate = CreateInsertStatementTemplate(queryResult[0], options.Table);
-                var script = new StringBuilder();
-                foreach (var row in queryResult)
-                {
-                    var values = row.Values.Select((value) => WrapWithQuote(value));
-                    script.AppendFormat(insertTemplate, string.Join(", ", values));
-                }
+            if (!queryResult.Any()) return 0;
 
-                script.AppendLine();
-                System.Console.WriteLine(script);
+            var firstResult = queryResult[0];
+            var template = !string.IsNullOrWhiteSpace(options.Template)
+                ? PrepareTemplatePlaceHolder(options.Template, firstResult)
+                : CreateInsertStatementTemplate(firstResult, options.Table);
+
+            Func<object, object> WrapQuoteIfTableExport;
+            if (!string.IsNullOrEmpty(options.Table))
+            {
+                WrapQuoteIfTableExport = (input) => WrapWithQuote(input);
+            }
+            else
+            {
+                WrapQuoteIfTableExport = (input) => input;
             }
 
+            var script = new StringBuilder();
+            foreach (var row in queryResult)
+            {
+                var values = row.Values.Select((value) => WrapQuoteIfTableExport(value));
+                script.AppendFormat(template, values.ToArray());
+            }
+
+            script.AppendLine();
+            System.Console.WriteLine(script);
             return 0;
+        }
+
+        private static string PrepareTemplatePlaceHolder(string template, IDictionary<string, object> firstRow)
+        {
+            var columns = firstRow.Keys
+                .Select((c, index) => new { key = $"c{index}", value = c })
+                .ToDictionary(c => c.key, c => c.value);
+
+            foreach (var column in columns)
+            {
+                template = template.Replace(column.Key, $"{column.Value}");
+            }
+
+            var matches = Regex.Matches(template, @"v(\d+)");
+            foreach (Match match in matches)
+            {
+                var valueIndex = match.Groups[1];
+                template = template.Replace(match.Value, $"{{{valueIndex}}}");
+            }
+
+            return template;
         }
 
         private static string CreateInsertStatementTemplate(IDictionary<string, object> row, string tableName)
         {
             var template = new StringBuilder();
-            template.AppendFormat("INSERT INTO [{0}]\n", tableName);
-            template.Append("(");
+            var columns = row.Keys.Select(column => $"[{column}]").ToArray();
 
-            var columns = row.Keys.Select(column => $"[{column}]");
-            template.Append(string.Join(", ", columns));
-            template.Append(")");
-            template.Append("\nVALUES\n");
-            template.AppendLine("({0})");
+            template.Append($"INSERT INTO [{tableName}]\n");
+            template.Append($"({CreateColumnNames(columns)})\n");
+            template.Append("VALUES\n");
+            template.Append($"({CreateValueIndexes(columns)})");
+
             return template.ToString();
         }
+
+        private static string CreateColumnNames(string[] columns)
+            => string.Join(", ", columns);
+
+        private static string CreateValueIndexes(string[] columns)
+            => string.Join(", ", columns.Select((_, index) => $"{{{index}}}"));
 
         private static string WrapWithQuote(object value)
         {
