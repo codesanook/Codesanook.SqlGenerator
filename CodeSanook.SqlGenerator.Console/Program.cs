@@ -58,9 +58,9 @@ namespace CodeSanook.SqlGenerator.Console
             {
                 var values = row.Values.Select((value) => WrapQuoteIfTableExport(value));
                 script.AppendFormat(template, values.ToArray());
+                script.Append("\n\n");
             }
 
-            script.AppendLine();
             System.Console.WriteLine(script);
             return 0;
         }
