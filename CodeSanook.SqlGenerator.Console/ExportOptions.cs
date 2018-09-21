@@ -11,25 +11,25 @@ namespace CodeSanook.SqlGenerator.Console
     [Verb("export", HelpText = "Export SQL insert statement from given SQL query")]
     public class ExportOptions
     {
-        [Option('c', "connection-string", Required = true, HelpText = "database connection string")]
-        public string ConnectionString { get; set; }
-
         [Option('d', "database-type", Required = true, HelpText = "database type, can be: SqlServer, MySql")]
         public DatabaseType DatabaseType { get; set; }
+
+        [Option('c', "connection-string", Required = true, HelpText = "database connection string")]
+        public string ConnectionString { get; set; }
 
         [Option('q', "query", Required = true, HelpText = "SQL query (select statement).")]
         public string Query { get; set; }
 
-        [Option('t', "table",Required =false, HelpText = "a table name to export")]
-        public string Table { get; set; }
-
         [Option(
-            'p',
+            't',
             "template",
-            Required = false,
+            Required = true,
             HelpText =
-            "SQLstatement and a placeholder for create output template." +
-            "Built-in placeholder are c0, c1,... for column and v0, v1,... for value")]
+            "SQLstatement and placeholders for create an output template. " +
+            "Built-in placeholders are: " +
+            "#{columnName} for a value of a given column name from a select statment, "+
+            "#{!'columnName} for a value of a given column name from a select statment and not wrap quote, " +
+            "#{col*} for CSV of all values in a row, ##{col*} for CSV of all column names in a row.")]
         public string Template { get; set; }
     }
 }
