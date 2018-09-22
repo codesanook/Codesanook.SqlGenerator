@@ -4,6 +4,7 @@ using FluentNHibernate.Cfg.Db;
 using NHibernate;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -16,6 +17,7 @@ namespace CodeSanook.SqlGenerator.Console
             @"(?<prefix>#{1,2}){\s*(?<noWrap>!')?(?<columnName>\w+\*?)\s*}",
             RegexOptions.Compiled
         );
+        private static object columnNameIndexes;
 
         //https://stackoverflow.com/questions/10704462/how-can-i-have-nhibernate-only-generate-the-sql-without-executing-it
         public static void Main(string[] args)
@@ -34,42 +36,64 @@ namespace CodeSanook.SqlGenerator.Console
         private static int ExportSqlInsert(ExportOptions options)
         {
             var sessionFactory = CreateSessionFactory(options);
-            IList<IDictionary<string, object>> queryResult;
-            using (var session = sessionFactory.OpenSession())
-            {
-                var query = session.CreateSQLQuery(options.Query);
-                queryResult = query.Dictionary();
-            }
-
-            if (!queryResult.Any()) return 0;
-            var templateResult = PrepareTemplatePlaceHolder(options.Template, queryResult[0]);
-
             var script = new StringBuilder();
-            foreach (var row in queryResult)
+            using (var session = sessionFactory.OpenStatelessSession())
             {
-                var values = row.Select(r => WrapValueWithQuote(r.Value, r.Key, templateResult.NowrapColumns)).ToArray();
-                script.AppendFormat(
-                    templateResult.Template,
-                    values
-                );
-                script.AppendLine();
+                var connection = (SqlConnection)session.Connection;
+                var command = connection.CreateCommand();
+                command.CommandText = options.Query;
+                using (var reader = command.ExecuteReader())
+                {
+                    //first row create template and get data
+                    string template = null;
+                    ColumnMetaData[] columnMetaDatas =null;
+                    if (reader.Read())
+                    {
+                        columnMetaDatas = GetColumnMetaDatas(reader);
+                        template = PrepareTemplatePlaceHolder(options.Template, columnMetaDatas);
+                        AppendScriptValues(reader, columnMetaDatas, template, script);
+                    }
+
+                    //next row get data only
+                    while (reader.Read())
+                    {
+                        AppendScriptValues(reader, columnMetaDatas, template, script);
+                    }
+                }
             }
+
             System.Console.WriteLine(script);
             return 0;
         }
 
-        private static (string Template, HashSet<string> NowrapColumns) PrepareTemplatePlaceHolder(string template, IDictionary<string, object> firstRow)
+        private static ColumnMetaData[] GetColumnMetaDatas(SqlDataReader reader)
         {
-            var columnNames = firstRow.Keys
-                .Select(column => $"[{column}]");
+            //https://stackoverflow.com/a/27200892/1872200
+            return Enumerable.Range(0, reader.FieldCount)
+                .Select(columnIndex =>
+                new ColumnMetaData(
+                    reader.GetName(columnIndex),
+                    reader.GetFieldType(columnIndex),
+                    reader.GetDataTypeName(columnIndex),
+                    columnIndex
+                )).ToArray();
+        }
 
-            var columnPlaceholderIndexes = firstRow.Keys
-                .Select((_, index) => $"{{{index}}}");
+        private static void AppendScriptValues(SqlDataReader reader,ColumnMetaData[] columnMetaDatas, string template, StringBuilder script)
+        {
+            var columnValues = new object[columnMetaDatas.Length];
+            reader.GetValues(columnValues);
 
-            var columnIndexes = firstRow.Keys
-                .Select((column, index) => new { Column = column, Index = index })
-                .ToDictionary(c => c.Column, c => c.Index);
+            var csvValues = columnValues
+                .Select((value, index) => columnMetaDatas[index].Format(value, reader.IsDBNull(index) ))
+                .ToArray();
 
+            script.AppendFormat(template, csvValues);
+            script.AppendLine();
+        }
+
+        private static string PrepareTemplatePlaceHolder(string template, ColumnMetaData[] columns)
+        {
             var matches = valueOfColumnNamePattern.Matches(template);
             var noWrapColumns = new HashSet<string>();
             foreach (Match match in matches)
@@ -79,59 +103,32 @@ namespace CodeSanook.SqlGenerator.Console
                 if (prefix == "##" && columnName.ToLower() == "col*")
                 {
                     //get CSV names of all columns
+                    var columnNames = columns.Select(column => $"[{column.Name}]");
                     template = template.Replace(match.Value, string.Join(", ", columnNames));
                 }
                 else if (columnName.ToLower() == "col*")
                 {
                     //get CSV values of all columns
+
+                    var columnPlaceholderIndexes = columns.Select(column => $"{{{column.Index}}}");
                     template = template.Replace(match.Value, string.Join(", ", columnPlaceholderIndexes));
                 }
                 else
                 {
                     //get a value of a given column name
-
-                    if (!columnIndexes.TryGetValue(columnName, out int columnIndex))
+                    var selectedColumn = columns.SingleOrDefault(column => column.Name == columnName);
+                    if (selectedColumn == null)
                     {
-                        throw new InvalidOperationException($"No column {columnName} in select result.");
+                        throw new InvalidOperationException($@"No column name ""{columnName}"" in select result.");
                     };
 
-                    template = template.Replace(match.Value, $"{{{columnIndex}}}");
-                    var noWrap = !string.IsNullOrWhiteSpace(match.Groups["noWrap"]?.Value);
-                    if (noWrap)
-                    {
-                        noWrapColumns.Add(columnName);
-                    }
+                    selectedColumn.NoWrap = !string.IsNullOrWhiteSpace(match.Groups["noWrap"]?.Value);
+                    template = template.Replace(match.Value, $"{{{selectedColumn.Index}}}");
                 }
             }
 
-            return (template, noWrapColumns);
+            return template;
         }
-
-        private static string WrapValueWithQuote(object value, string columnName, HashSet<string> noWrapColumn)
-        {
-            if (value == null) return "NULL";
-
-            switch (Type.GetTypeCode(value?.GetType()))
-            {
-                case TypeCode.String:
-                    return $"{GetWrapValue(value.ToString().Replace("'", "''"), columnName, noWrapColumn)}";//to handle single quote in a string content
-                case TypeCode.DateTime:
-                    return $"{GetWrapValue($"{value:yyyy-MM-dd HH:mm:ss}", columnName, noWrapColumn)}";
-                case TypeCode.Object:
-                    return value.GetType() == typeof(Guid) 
-                        ? $"{GetWrapValue(value.ToString(), columnName, noWrapColumn)}" 
-                        : $"{value}";
-                case TypeCode.Boolean:
-                    return Convert.ToBoolean(value) 
-                        ? "1" 
-                        : "0";
-                default:
-                    return $"{value}";
-            }
-        }
-
-        private static string GetWrapValue(string value, string columnName, HashSet<string> noWrapColumn)
-            => noWrapColumn.Contains(columnName) ? value : $"'{value}'";
 
         private static ISessionFactory CreateSessionFactory(ExportOptions options)
             => Fluently.Configure()

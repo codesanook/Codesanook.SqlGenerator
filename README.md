@@ -1,4 +1,4 @@
-﻿![sql logo](https://github.com/aaronamm/CodeSanook.SqlGenerator.Console/blob/master/sql.png)
+﻿![sql logo](https://github.com/codesanook/CodeSanook.SqlGenerator.Console/blob/master/sql.png)
 
 ## Use case
 * You want to reproduce some errors that happened on a production.
@@ -20,7 +20,7 @@ NodeJS, Python. This is because CodeSanook.SqlGenerator.Console.exe is a console
 * ตัวอย่างเช่น database ใน production ใหญ่มาก แต่เราต้องการข้อมูลเพียงบางส่วน เช่นเฉพาะ data ที่เกี่ยวข้องกับ user จำนวนหนึ่ง
 * เราก็ทำการสร้าง select statment ของข้อมูลที่เกี่ยวข้องทั้งหมด ตัว tool (Export-SqlQuery.ps1 หรือ CodeSanook.SqlGenerator.Console.exe)
 ก็จะสร้าง insert statment ให้เราเอาไปใช้งานได้เลยครับ เช่น นำไป execute ใน develop machine 
-* github project URL [https://github.com/aaronamm/CodeSanook.SqlGenerator.Console](https://github.com/aaronamm/CodeSanook.SqlGenerator.Console)
+* github project URL [https://github.com/codesanook/CodeSanook.SqlGenerator.Console](https://github.com/codesanook/CodeSanook.SqlGenerator.Console)
 
 ## Benefit and motivation
 * Work with any target columns order or missing columns
@@ -54,7 +54,7 @@ CD to a folder that you want to store the project files.
 
 use git command
 ```
-git clone https://github.com/aaronamm/CodeSanook.SqlGenerator.Console.git 
+git clone https://github.com/codesanook/CodeSanook.SqlGenerator.Console.git 
 ```
 
 CD to go inside the folder of project file.
@@ -77,7 +77,7 @@ execute PowerShellFile to build a project
 ## Run Export-SqlQuery
 Edit Export-SqlQuery.ps1 to have a query that you want to create insert statement script 
 and change a connection string to point to your SQL server.      
-run
+Run
 ```
 .\Export-SqlQuery.ps1
 ```	
@@ -87,27 +87,45 @@ Check if you have a script.sql that contains multiple insert statements.
 
 # Examples
 
-
 ## Example of a demo table schema  
 ```
-CREATE TABLE [dbo].[Users](
-	[Id] [uniqueidentifier] NOT NULL PRIMARY KEY,
-	[FirstName] [nvarchar](50) NOT NULL,
-	[LastName] [nvarchar](50) NOT NULL,
-	[DateOfBirth] [datetime] NULL,
-	[Checked] [bit] NULL)
+CREATE TABLE [dbo].[Users] (
+    [Id] [uniqueidentifier] NOT NULL PRIMARY KEY,
+    [FirstName] [nvarchar](50) NOT NULL,
+    [LastName] [nvarchar](50) NOT NULL,
+    [DateOfBirth] [datetime] NULL,
+    [Checked] [bit] NULL,
+    [Money] [decimal](18, 4) NULL
+)
 ```
 
 ## Example of SQL query
 ```
-SELECT * FROM Users
+    SELECT * FROM Users
+```
+
+## Example of SQL export template 
+```
+    INSERT INTO [Users] 
+        (##{col*}) 
+    VALUES 
+        (#{col*})
+
+```
+## Built-in placeholders are:
+```
+    #{columnName} for a value of a given column name from a select statment
+    #{!'columnName} for a value of a given column name from a select statment and not wrap quote
+    #{col*} for CSV of all values in a row
+    ##{col*} for CSV of all column names in a row
 ```
 
 ## Example of exported insert statement (contents in script.sql)
 ```
-INSERT INTO [Users] ([Id], [FirstName], [LastName], [DateOfBirth], [Checked])
- VALUES 
-('efef279a-7633-4ecd-aa30-dbf8f924aac1', 'AAron', 'Amm', '2018-01-20 09:30:00', 1)
+    INSERT INTO [Users]
+        ([Id], [FirstName], [LastName], [DateOfBirth], [Checked], [Money]) 
+    VALUES 
+        ('efef279a-7633-4ecd-aa30-dbf8f924aac1', 'Aaron', 'Amm', '2018-01-20 09:30:00', 1, NULL)
 ```
 
 # TO DO
@@ -115,6 +133,8 @@ INSERT INTO [Users] ([Id], [FirstName], [LastName], [DateOfBirth], [Checked])
 * [x] support SQL Server
 * [x] PowerShell Script for working with multiple SQL Query
 * [x] MS Build script for easy deployment
+* [ ] optimize speed
+* [ ] pagination for large data set
 * [ ] option to allow inserting auto increment ID
 * [ ] support MySQL
 * [ ] Not sure about maximum rows can be exported because everything is in memory now 

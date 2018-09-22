@@ -72,7 +72,7 @@ $query = @"
 # #{col*} for CSV of all values in a row
 # ##{col*} for CSV of all column names in a row
 $template = @"
-    INSERT INTO Users 
+    INSERT INTO [Users]
         (##{col*}) 
     VALUES 
         (#{col*})
@@ -88,7 +88,7 @@ $query = @"
 "@
 $template = @"
     ALTER TABLE [#{!'TableName}]
-    ALTER [#{!'ColumnName}] DECIMAL(18, 4)
+    ALTER COLUMN [#{!'ColumnName}] DECIMAL(18, 4)
 "@
 
 Export-SqlQuery -ConnectionString $connectionString -DatabaseType $databaseType -Query $query -Template $template -FilePath $fileOutputPath
