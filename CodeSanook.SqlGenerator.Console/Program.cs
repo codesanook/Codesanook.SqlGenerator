@@ -17,7 +17,6 @@ namespace CodeSanook.SqlGenerator.Console
             @"(?<prefix>#{1,2}){\s*(?<noWrap>!')?(?<columnName>\w+\*?)\s*}",
             RegexOptions.Compiled
         );
-        private static object columnNameIndexes;
 
         //https://stackoverflow.com/questions/10704462/how-can-i-have-nhibernate-only-generate-the-sql-without-executing-it
         public static void Main(string[] args)
@@ -69,6 +68,7 @@ namespace CodeSanook.SqlGenerator.Console
         private static ColumnMetaData[] GetColumnMetaDatas(SqlDataReader reader)
         {
             //https://stackoverflow.com/a/27200892/1872200
+            //https://ayende.com/blog/4548/nhibernate-streaming-large-result-sets
             return Enumerable.Range(0, reader.FieldCount)
                 .Select(columnIndex =>
                 new ColumnMetaData(

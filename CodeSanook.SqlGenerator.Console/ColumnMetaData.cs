@@ -26,16 +26,13 @@ namespace CodeSanook.SqlGenerator.Console
             });
         }
 
-        private string WrapQuote(string format)
-            => NoWrap ? format : $"'{format}'";
+        private string WrapQuote(string format) => NoWrap ? format : $"'{format}'";
 
         public string Name { get; }
         public Type DotNetType { get; }
         public string SqlType { get; }
         public int Index { get; }
-
         public bool NoWrap { get; set; }
-
         private Lazy<string> ValuePlaceHolder { get; }
         private string NullValuePlaceHolder { get; } = "NULL";
 
@@ -50,15 +47,11 @@ namespace CodeSanook.SqlGenerator.Console
                     return string.Format(ValuePlaceHolder.Value, value.ToString().Replace("'", "''"));
                 case nameof(DateTime):
                     return string.Format(ValuePlaceHolder.Value, ((DateTime)value).ToString("yyyy-MM-dd HH:mm:ss"));
-
                 case nameof(Boolean):
                     return string.Format(ValuePlaceHolder.Value, (bool)value ? "1" : "0");
                 default:
                     return string.Format(ValuePlaceHolder.Value, value);
             }
-
         }
     }
-
-
 }
