@@ -4,6 +4,7 @@ using NHibernate;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -18,7 +19,7 @@ namespace CodeSanook.SqlGenerator
         );
 
         //https://stackoverflow.com/questions/10704462/how-can-i-have-nhibernate-only-generate-the-sql-without-executing-it
-        public string Export(ExportOptions options)
+        public void Export(ExportOptions options)
         {
             var sessionFactory = CreateSessionFactory(options);
             var script = new StringBuilder();
@@ -45,9 +46,17 @@ namespace CodeSanook.SqlGenerator
                         AppendScriptValues(reader, columnMetaDatas, template, script);
                     }
                 }
-            }
 
-            return script.ToString();
+                // convert string to stream
+                var byteArray = Encoding.UTF8.GetBytes(script.ToString());
+                var inputStream = new MemoryStream(byteArray);
+                byte[] buffer = new byte[8 * 1024];
+                int length;
+                while ((length = inputStream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    options.Stream.Write(buffer, 0, length);
+                }
+            }
         }
 
         private static ColumnMetaData[] GetColumnMetaDatas(SqlDataReader reader)

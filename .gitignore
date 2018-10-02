@@ -243,6 +243,7 @@ ModelManifest.xml
 
 # not include generated SQL script
 script.sql
+output-script.sql
 
 **/*.swp
 

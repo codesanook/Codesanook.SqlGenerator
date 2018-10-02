@@ -10,15 +10,12 @@ $onAssemblyResolveEventHandler = [System.ResolveEventHandler] {
     param($sender, $e)
 
     # You can make this condition more or less version specific as suits your requirements
-    if ($e.Name.StartsWith('NHibernate')) {
-        return $nhibernate
-    }
+    if ($e.Name.StartsWith('NHibernate')) { return $nhibernate }
 
     foreach($assembly in [System.AppDomain]::CurrentDomain.GetAssemblies()) {
-        if ($assembly.FullName -eq $e.Name) {
-              return $assembly
-        }
+        if ($assembly.FullName -eq $e.Name) { return $assembly }
     }
+
     return $null
 }
 [System.AppDomain]::CurrentDomain.add_AssemblyResolve($onAssemblyResolveEventHandler)
@@ -44,9 +41,16 @@ function Export-SqlQuery {
     $options.Query = $Query
     $options.Template = $Template
 
+    $fileStream = New-Object `
+        -TypeName System.IO.FileStream `
+        -ArgumentList @($FilePath, [System.IO.FileMode]::Append, [System.IO.FileAccess]::Write)
+    $options.Stream = $fileStream 
+
     # export SQL query and pipe to a file
     $tool = New-Object CodeSanook.SqlGenerator.SqlExportTool
-    $tool.Export($options) | Out-File -FilePath $FilePath -Append
+    $tool.Export($options)
+    $fileStream.Close()
+
 }
 
 function Get-ConnectionString{
@@ -69,14 +73,13 @@ function Get-ConnectionString{
     $connectionString
 }
 
-#Begin of using a script
+#*********************Begin of using a script*********************
+
 $database = "testdb"
 $server = ".\"
 $connectionString = Get-ConnectionString -Server $server -Database $database
-
 $databaseType = [CodeSanook.SqlGenerator.DatabaseType]::SqlServer
-
-$fileOutputPath = "./script.sql" 
+$fileOutputPath = "./output-script.sql" 
 Remove-Item -Path $fileOutputPath -Force -ErrorAction Ignore
 
 #Get Users items
@@ -94,6 +97,7 @@ $template = @"
         (##{col*}) 
     VALUES 
         (#{col*})
+
 "@
 
 Export-SqlQuery -ConnectionString $connectionString -DatabaseType $databaseType -Query $query -Template $template -FilePath $fileOutputPath
@@ -108,6 +112,7 @@ $query = @"
 $template = @"
     ALTER TABLE [#{!'TableName}]
     ALTER COLUMN [#{!'ColumnName}] DECIMAL(18, 4)
+
 "@
 
 Export-SqlQuery -ConnectionString $connectionString -DatabaseType $databaseType -Query $query -Template $template -FilePath $fileOutputPath
