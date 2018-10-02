@@ -133,6 +133,7 @@ CREATE TABLE [dbo].[Users] (
 * [x] support SQL Server
 * [x] PowerShell Script for working with multiple SQL Query
 * [x] MS Build script for easy deployment
+* [ ] Case insensitive column name
 * [ ] optimize speed
 * [ ] pagination for large data set
 * [ ] option to allow inserting auto increment ID

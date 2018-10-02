@@ -3,7 +3,7 @@ using NHibernate.Transform;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace CodeSanook.SqlGenerator.Console
+namespace CodeSanook.SqlGenerator
 {
     //credit https://adrianphinney.com/post/18900251364/nhibernate-raw-sql-and-dynamic-result-sets
     public class NhTransformers

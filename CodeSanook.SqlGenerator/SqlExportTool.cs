@@ -1,5 +1,4 @@
-﻿using CommandLine;
-using FluentNHibernate.Cfg;
+﻿using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
 using NHibernate;
 using System;
@@ -9,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace CodeSanook.SqlGenerator.Console
+namespace CodeSanook.SqlGenerator
 {
-    public class Program
+    public class SqlExportTool
     {
         private static Regex valueOfColumnNamePattern = new Regex(
             @"(?<prefix>#{1,2}){\s*(?<noWrap>!')?(?<columnName>\w+\*?)\s*}",
@@ -19,20 +18,7 @@ namespace CodeSanook.SqlGenerator.Console
         );
 
         //https://stackoverflow.com/questions/10704462/how-can-i-have-nhibernate-only-generate-the-sql-without-executing-it
-        public static void Main(string[] args)
-        {
-            Parser.Default
-                .ParseArguments<ExportOptions>(args)
-                .MapResult(
-                    opts => ExportSqlInsert(opts),
-                    errs =>
-                    {
-                        return 1;
-                    }
-                );
-        }
-
-        private static int ExportSqlInsert(ExportOptions options)
+        public string Export(ExportOptions options)
         {
             var sessionFactory = CreateSessionFactory(options);
             var script = new StringBuilder();
@@ -45,7 +31,7 @@ namespace CodeSanook.SqlGenerator.Console
                 {
                     //first row create template and get data
                     string template = null;
-                    ColumnMetaData[] columnMetaDatas =null;
+                    ColumnMetaData[] columnMetaDatas = null;
                     if (reader.Read())
                     {
                         columnMetaDatas = GetColumnMetaDatas(reader);
@@ -61,8 +47,7 @@ namespace CodeSanook.SqlGenerator.Console
                 }
             }
 
-            System.Console.WriteLine(script);
-            return 0;
+            return script.ToString();
         }
 
         private static ColumnMetaData[] GetColumnMetaDatas(SqlDataReader reader)
@@ -79,13 +64,13 @@ namespace CodeSanook.SqlGenerator.Console
                 )).ToArray();
         }
 
-        private static void AppendScriptValues(SqlDataReader reader,ColumnMetaData[] columnMetaDatas, string template, StringBuilder script)
+        private static void AppendScriptValues(SqlDataReader reader, ColumnMetaData[] columnMetaDatas, string template, StringBuilder script)
         {
             var columnValues = new object[columnMetaDatas.Length];
             reader.GetValues(columnValues);
 
             var csvValues = columnValues
-                .Select((value, index) => columnMetaDatas[index].Format(value, reader.IsDBNull(index) ))
+                .Select((value, index) => columnMetaDatas[index].Format(value, reader.IsDBNull(index)))
                 .ToArray();
 
             script.AppendFormat(template, csvValues);
@@ -133,7 +118,7 @@ namespace CodeSanook.SqlGenerator.Console
         private static ISessionFactory CreateSessionFactory(ExportOptions options)
             => Fluently.Configure()
                 .Database(GetDatabaseConfiguration(options))
-                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<Program>())
+                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<SqlExportTool>())
                 .BuildSessionFactory();
 
         private static IPersistenceConfigurer GetDatabaseConfiguration(ExportOptions options)

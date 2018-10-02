@@ -2,34 +2,51 @@
     [Parameter] [SecureString] $Password 
 )
 
+#load required Assembly
+$nhibernatePath = Join-Path -Path $PSScriptRoot -ChildPath "CodeSanook.SqlGenerator/bin/Debug/NHibernate.dll"
+$nhibernate = [Reflection.Assembly]::LoadFrom($nhibernatePath)   
+
+$onAssemblyResolveEventHandler = [System.ResolveEventHandler] {
+    param($sender, $e)
+
+    # You can make this condition more or less version specific as suits your requirements
+    if ($e.Name.StartsWith('NHibernate')) {
+        return $nhibernate
+    }
+
+    foreach($assembly in [System.AppDomain]::CurrentDomain.GetAssemblies()) {
+        if ($assembly.FullName -eq $e.Name) {
+              return $assembly
+        }
+    }
+    return $null
+}
+[System.AppDomain]::CurrentDomain.add_AssemblyResolve($onAssemblyResolveEventHandler)
+
+$assemblyPath = Join-Path -Path $PSScriptRoot -ChildPath "CodeSanook.SqlGenerator/bin/Debug/CodeSanook.SqlGenerator.dll"
+#LoadFrom() look for the depepent DLLs in the same directory
+$assembly = [Reflection.Assembly]::LoadFrom($assemblyPath)   
+
 function Export-SqlQuery {
     param(
         [Parameter(Mandatory = $True)] [string] $ConnectionString, 
-        [Parameter(Mandatory = $True)] [string] $DatabaseType, 
+        [Parameter(Mandatory = $True)]
+        [CodeSanook.SqlGenerator.DatabaseType] $DatabaseType, 
         [Parameter(Mandatory = $True)] [string] $Query, 
         [Parameter(Mandatory = $True)] [string] $Template,
         [Parameter(Mandatory = $True)] [string] $FilePath
     )
 
-    $exePath = "./bin/debug/CodeSanook.SqlGenerator.Console.exe"
-    $commandTemplate = 
-        '& "{0}" export `
-		--connection-string "{1}" `
-		--database-type "{2}" `
-		--query "{3}" `
-		--template "{4}"'
+    #prepare parameters object
+    $options = New-Object CodeSanook.SqlGenerator.ExportOptions
+    $options.DatabaseType = $DatabaseType 
+    $options.ConnectionString = $ConnectionString 
+    $options.Query = $Query
+    $options.Template = $Template
 
-    $command = 
-        $commandTemplate `
-        -f `
-        $ExePath, `
-        $ConnectionString, `
-        $DatabaseType, `
-        $Query, `
-        $Template
-
-    # export SQL query to a file  
-    Invoke-Expression $command | Out-File -FilePath $FilePath -Append
+    # export SQL query and pipe to a file
+    $tool = New-Object CodeSanook.SqlGenerator.SqlExportTool
+    $tool.Export($options) | Out-File -FilePath $FilePath -Append
 }
 
 function Get-ConnectionString{
@@ -56,7 +73,8 @@ function Get-ConnectionString{
 $database = "testdb"
 $server = ".\"
 $connectionString = Get-ConnectionString -Server $server -Database $database
-$databaseType = "SqlServer" 
+
+$databaseType = [CodeSanook.SqlGenerator.DatabaseType]::SqlServer
 
 $fileOutputPath = "./script.sql" 
 Remove-Item -Path $fileOutputPath -Force -ErrorAction Ignore
@@ -77,6 +95,7 @@ $template = @"
     VALUES 
         (#{col*})
 "@
+
 Export-SqlQuery -ConnectionString $connectionString -DatabaseType $databaseType -Query $query -Template $template -FilePath $fileOutputPath
 
  # Alter Users table 
@@ -93,3 +112,6 @@ $template = @"
 
 Export-SqlQuery -ConnectionString $connectionString -DatabaseType $databaseType -Query $query -Template $template -FilePath $fileOutputPath
 "Successfully"
+
+# Detach the event handler (not detaching can lead to stack overflow issues when closing PS)
+[System.AppDomain]::CurrentDomain.remove_AssemblyResolve($onAssemblyResolveEventHandler)

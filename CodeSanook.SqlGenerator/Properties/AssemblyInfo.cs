@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CodeSanook.SqlGenerator.Console")]
+[assembly: AssemblyTitle("CodeSanook.SqlGenerator")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("CodeSanook.SqlGenerator.Console")]
-[assembly: AssemblyCopyright("Copyright ©  2018")]
+[assembly: AssemblyProduct("CodeSanook.SqlGenerator")]
+[assembly: AssemblyCopyright("Copyright © 2018 codesanook.com")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

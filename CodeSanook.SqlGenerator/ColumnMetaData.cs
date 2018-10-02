@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CodeSanook.SqlGenerator.Console
+namespace CodeSanook.SqlGenerator
 {
     public class ColumnMetaData
     {
