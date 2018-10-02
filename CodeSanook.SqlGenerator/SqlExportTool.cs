@@ -22,8 +22,8 @@ namespace CodeSanook.SqlGenerator
         public void Export(ExportOptions options)
         {
             var sessionFactory = CreateSessionFactory(options);
-            var script = new StringBuilder();
             using (var session = sessionFactory.OpenStatelessSession())
+            using (var streamWriter = new StreamWriter(options.Stream))
             {
                 var connection = (SqlConnection)session.Connection;
                 var command = connection.CreateCommand();
@@ -31,6 +31,7 @@ namespace CodeSanook.SqlGenerator
                 using (var reader = command.ExecuteReader())
                 {
                     //first row create template and get data
+                    var script = new StringBuilder();
                     string template = null;
                     ColumnMetaData[] columnMetaDatas = null;
                     if (reader.Read())
@@ -45,16 +46,7 @@ namespace CodeSanook.SqlGenerator
                     {
                         AppendScriptValues(reader, columnMetaDatas, template, script);
                     }
-                }
-
-                // convert string to stream
-                var byteArray = Encoding.UTF8.GetBytes(script.ToString());
-                var inputStream = new MemoryStream(byteArray);
-                byte[] buffer = new byte[8 * 1024];
-                int length;
-                while ((length = inputStream.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    options.Stream.Write(buffer, 0, length);
+                    streamWriter.Write(script.ToString());
                 }
             }
         }
