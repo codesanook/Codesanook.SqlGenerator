@@ -5,12 +5,10 @@
 * Production database is huge and it is hard to restore from a backup. 
 * To copy data from a server database to developer machine is very boring job.
 * Most tool I found only support exporting to text file, excel file, or some Wizard UI.   
-* You can use this tool (Export-SqlQuery.ps1 or CodeSanook.SqlGenerator.Console.exe) 
+* You can use this tool (Export-SqlQuery.ps1) 
 to export your SQL query result to a set of insert statement.
-* Export-SqlQuery.ps1 use  CodeSanook.SqlGenerator.Console.exe for preparing multiple query and create 
+* Export-SqlQuery.ps1 use **CodeSanook.SqlGenerator.dll** for preparing multiple query and create 
 SQL script file  
-* You can use "CodeSanook.SqlGenerator.Console.exe" with other programming language/framework e.g. Java,
-NodeJS, Python. This is because CodeSanook.SqlGenerator.Console.exe is a console application.
 * The program can only use with Windows client now. 
 
 ## Use case in Thai language
@@ -18,9 +16,9 @@ NodeJS, Python. This is because CodeSanook.SqlGenerator.Console.exe is a console
 * สำหรับท่านใดที่ต้องการ export SQL query select statement เพื่อดึงข้อมูลบางส่วนจาก production database
 แล้วสร้าง insert statement ให้โดยอัตโนมัติ 
 * ตัวอย่างเช่น database ใน production ใหญ่มาก แต่เราต้องการข้อมูลเพียงบางส่วน เช่นเฉพาะ data ที่เกี่ยวข้องกับ user จำนวนหนึ่ง
-* เราก็ทำการสร้าง select statment ของข้อมูลที่เกี่ยวข้องทั้งหมด ตัว tool (Export-SqlQuery.ps1 หรือ CodeSanook.SqlGenerator.Console.exe)
+* เราก็ทำการสร้าง select statment ของข้อมูลที่เกี่ยวข้องทั้งหมด ตัว tool (Export-SqlQuery.ps1 หรือ CodeSanook.SqlGenerator.dll)
 ก็จะสร้าง insert statment ให้เราเอาไปใช้งานได้เลยครับ เช่น นำไป execute ใน develop machine 
-* github project URL [https://github.com/codesanook/CodeSanook.SqlGenerator.Console](https://github.com/codesanook/CodeSanook.SqlGenerator.Console)
+* github project URL [https://github.com/codesanook/CodeSanook.SqlGenerator](https://github.com/codesanook/CodeSanook.SqlGenerator)
 
 ## Benefit and motivation
 * Work with any target columns order or missing columns
@@ -49,27 +47,33 @@ Before we can start, you need to have the following software installed on your c
 ## How to use Export-SqlQuery.ps1	
 
 ## Clone the project (only for the first time) 
-Launch PowerShell console with administrator permission.
+Launch PowerShell with administrator permission.
 CD to a folder that you want to store the project files.
 
-use git command
+Use git command
 ```
-git clone https://github.com/codesanook/CodeSanook.SqlGenerator.Console.git 
+git clone https://github.com/codesanook/CodeSanook.SqlGenerator.git 
 ```
 
-CD to go inside the folder of project file.
+CD to go inside the folder of solution file.
 ```
-cd CodeSanook.SqlGenerator.Console\CodeSanook.SqlGenerator.Console
+cd CodeSanook.SqlGenerator\
 
 ```
 
 ## Build the project (only the first time and when you update source codes)
+
+Install MS build with Chocolatey
+```
+choco install microsoft-build-tools
+```
+
 Temporary allow ExecutionPolicy to run PowerShell script in the project 
 ```
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted
 ```
 
-execute PowerShellFile to build a project
+Execute PowerShellFile to build a project
 ```
 .\Build-Project.ps1
 ```
