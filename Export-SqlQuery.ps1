@@ -2,25 +2,9 @@
     [Parameter] [SecureString] $Password 
 )
 
-#load required Assembly
-$nhibernatePath = Join-Path -Path $PSScriptRoot -ChildPath "CodeSanook.SqlGenerator/bin/Debug/NHibernate.dll"
-$nhibernate = [Reflection.Assembly]::LoadFrom($nhibernatePath)   
+$outputDir = Join-Path -Path $PSScriptRoot -ChildPath "CodeSanook.SqlGenerator/bin/Debug";
+$assemblyPath = Join-Path -Path $outputDir -ChildPath "CodeSanook.SqlGenerator.dll"
 
-$onAssemblyResolveEventHandler = [System.ResolveEventHandler] {
-    param($sender, $e)
-
-    # You can make this condition more or less version specific as suits your requirements
-    if ($e.Name.StartsWith('NHibernate')) { return $nhibernate }
-
-    foreach($assembly in [System.AppDomain]::CurrentDomain.GetAssemblies()) {
-        if ($assembly.FullName -eq $e.Name) { return $assembly }
-    }
-
-    return $null
-}
-[System.AppDomain]::CurrentDomain.add_AssemblyResolve($onAssemblyResolveEventHandler)
-
-$assemblyPath = Join-Path -Path $PSScriptRoot -ChildPath "CodeSanook.SqlGenerator/bin/Debug/CodeSanook.SqlGenerator.dll"
 #LoadFrom() look for the depepent DLLs in the same directory
 $assembly = [Reflection.Assembly]::LoadFrom($assemblyPath)   
 
@@ -117,6 +101,3 @@ $template = @"
 
 Export-SqlQuery -ConnectionString $connectionString -DatabaseType $databaseType -Query $query -Template $template -FilePath $fileOutputPath
 "Successfully"
-
-# Detach the event handler (not detaching can lead to stack overflow issues when closing PS)
-[System.AppDomain]::CurrentDomain.remove_AssemblyResolve($onAssemblyResolveEventHandler)
