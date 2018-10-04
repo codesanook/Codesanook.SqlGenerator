@@ -55,6 +55,27 @@ Push-Location -Path "./dist"
 Get-Location
 
 ../nuget.exe spec $projectName -Force
+[Reflection.Assembly]::Load("System.Xml.Linq, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089") | Out-Null
+
+#push location does not work with calling .NET type
+$xDoc = [System.Xml.Linq.XDocument]::Load("./dist/$projectName.nuspec")
+#$endpoints = $xDoc.Descendants("client") | foreach { $_.DescendantNodes()}               
+#$comments = $endpoints | Where-Object { $_.NodeType -eq [System.Xml.XmlNodeType]::Comment -and $_.Value -match "net.tcp://localhost:9876/RaceDayService" }        
+#$comments | foreach { $_.ReplaceWith([System.Xml.Linq.XElement]::Parse($_.Value)) }
+
+$author = $xDoc.Descendants("authors") | Select -First 1
+$author.Value = "AaronAmm"
+
+$owner = $xDoc.Descendants("owners") | Select -First 1
+$owner.Value = "codesanook.com"
+
+<#
+    <dependencies>
+      <dependency id="SampleDependency" version="1.0" />
+    </dependencies>
+#>
+
+$xDoc.Save("./dist/$projectName.nuspec")
 ../nuget.exe pack "$projectName.nuspec"
 
 Pop-Location
