@@ -249,3 +249,4 @@ output-script.sql
 
 Export-SqlQuery-Live.ps1
 Export-SqlQuery-*
+dist

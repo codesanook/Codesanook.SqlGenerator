@@ -2,7 +2,7 @@
     [Parameter] [SecureString] $Password 
 )
 
-$outputDir = Join-Path -Path $PSScriptRoot -ChildPath "CodeSanook.SqlGenerator/bin/Debug";
+$outputDir = Join-Path -Path $PSScriptRoot -ChildPath "CodeSanook.SqlGenerator/bin/Release";
 $assemblyPath = Join-Path -Path $outputDir -ChildPath "CodeSanook.SqlGenerator.dll"
 
 #LoadFrom() look for the depepent DLLs in the same directory
@@ -34,7 +34,6 @@ function Export-SqlQuery {
     $tool = New-Object CodeSanook.SqlGenerator.SqlExportTool
     $tool.Export($options)
     $fileStream.Close()
-
 }
 
 function Get-ConnectionString{
