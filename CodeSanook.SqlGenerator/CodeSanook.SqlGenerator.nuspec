@@ -6,12 +6,12 @@
         <title>$title$</title>
         <authors>$author$</authors>
         <owners>$author$</owners>
-        <description>Hello world</description>
+        <description>To export SQL server</description>
         <releaseNotes>release note</releaseNotes>
         <copyright>Copyright 2018</copyright>
-        <tags>SQL</tags>
+        <tags>SQL C#</tags>
     </metadata>
     <files>
-        <file src="./Test-File.ps1" target="tools" />
+        <file src="../Export-SqlQuery.ps1" target="tools" />
     </files>
 </package>
