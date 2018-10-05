@@ -250,3 +250,4 @@ output-script.sql
 Export-SqlQuery-Live.ps1
 Export-SqlQuery-*
 dist
+CodeSanook.SqlGenerator.1.0.0.nupkg

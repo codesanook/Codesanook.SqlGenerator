@@ -70,21 +70,35 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="CodeSanook.SqlGenerator.nuspec" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Test-File.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
+  <!-- 
+   To modify your build process, add your task inside one of the targets below and uncomment it. 
+   Other similar extension points exist, see Microsoft.Common.targets.
+
   <Target Name="BeforeBuild">
+
   </Target>
+
   <Target Name="AfterBuild">
+
   </Target>
   -->
   <Target Name="Clean">
     <RemoveDir Directories="$(OutputPath)" />
     <Message Text="OutputPath = $(OutputPath)" />
     <Message Text="MSBuildToolsPath = $(MSBuildToolsPath)" />
+  </Target>
+  <Target Name="PrePackage" BeforeTargets="BuildPackage">
+    <PropertyGroup>
+      <BuildCommand>$(BuildCommand) -Properties Configuration=Release</BuildCommand>
+    </PropertyGroup>
   </Target>
 </Project>

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+    <metadata>
+        <id>$id$</id>
+        <version>$version$</version>
+        <title>$title$</title>
+        <authors>$author$</authors>
+        <owners>$author$</owners>
+        <description>Hello world</description>
+        <releaseNotes>release note</releaseNotes>
+        <copyright>Copyright 2018</copyright>
+        <tags>SQL</tags>
+    </metadata>
+    <files>
+        <file src="./Test-File.ps1" target="tools" />
+    </files>
+</package>

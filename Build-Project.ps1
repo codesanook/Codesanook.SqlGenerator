@@ -80,3 +80,6 @@ $xDoc.Save("./dist/$projectName.nuspec")
 
 Pop-Location
 Get-Location
+
+#https://stackoverflow.com/a/40604987/1872200
+nuget.exe pack CodeSanook.SqlGenerator/CodeSanook.SqlGenerator.csproj -Build -Properties Configuration=Release;Author=AaronAmm
