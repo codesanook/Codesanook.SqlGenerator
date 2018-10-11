@@ -70,12 +70,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="CodeSanook.SqlGenerator.nuspec" />
-    <None Include="packages.config">
+    <None Include="CodeSanook.SqlGenerator.nuspec">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Test-File.ps1">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -13,5 +13,7 @@
     </metadata>
     <files>
         <file src="../Export-SqlQuery.ps1" target="tools" />
+        <file src="../nuget.exe" target="tools" />
+
     </files>
 </package>

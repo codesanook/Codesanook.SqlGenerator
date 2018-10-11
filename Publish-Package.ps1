@@ -23,6 +23,7 @@ $propertiesValue = $properties.Keys | Foreach-Object {
 Get-ChildItem -Path "*.nupkg" | ForEach-Object {
     Remove-Item $_
 }
+
 ./nuget pack "./$projectName/$projectName.csproj" -Build -Properties ($propertiesValue -join ";")
 
 $apiKey = Get-Content -Path $apiKeyFilePath

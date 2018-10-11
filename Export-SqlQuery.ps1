@@ -2,8 +2,11 @@
     [Parameter] [SecureString] $Password 
 )
 
-$outputDir = Join-Path -Path $PSScriptRoot -ChildPath "CodeSanook.SqlGenerator/bin/Release";
-$assemblyPath = Join-Path -Path $outputDir -ChildPath "CodeSanook.SqlGenerator.dll"
+$libraryName = "CodeSanook.SqlGenerator"
+./nuget Install $libraryName -DependencyVersion Lowest -OutputDirectory "./package"
+
+$outputDir = Join-Path -Path $PSScriptRoot -ChildPath "$libraryName/bin/Release"
+$assemblyPath = Join-Path -Path $outputDir -ChildPath "$libraryName.dll"
 
 #LoadFrom() look for the depepent DLLs in the same directory
 $assembly = [Reflection.Assembly]::LoadFrom($assemblyPath)   
