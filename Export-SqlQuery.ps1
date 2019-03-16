@@ -17,17 +17,34 @@ $query = @"
     SELECT * FROM Users
 "@
 
-# Built-in placeholders are 
+# Built-in placeholders are: 
 # #{columnName} for a value of a given column name from a select statement
-# #{!'columnName} for a value of a given column name from a select statement and not wrap quote
+# #{!'columnName} for a value of a given column name from a select statement without wrap quote
 # #{col*} for CSV of all values in a row
 # ##{col*} for CSV of all column names in a row
+
+# Get all columns
 $template = @"
     INSERT INTO [Users]
         (##{col*}) 
     VALUES 
         (#{col*})
 
+"@
+
+Export-SqlQuery `
+	-ConnectionString $connectionString `
+	-DatabaseType $databaseType `
+	-Query $query `
+	-Template $template `
+	-FilePath $fileOutputPath
+
+# Get specific columns
+$template = @"
+    INSERT INTO [Users]
+        (Id, FullName) 
+    VALUES 
+        (#{Id}, '#{!'FirstName} #{!'LastName}')
 "@
 
 Export-SqlQuery `
