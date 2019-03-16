@@ -1,12 +1,20 @@
-﻿param(
-    [Parameter] [SecureString] $Password 
+﻿<#
+username and password parameters are optional.
+If you run in the same machine of SQL server, you can ignore these parameter 
+and use Windows authentication
+#>
+param(
+	[Parameter(Mandatory = $False)] [string] $Username,
+	[Parameter(Mandatory = $False)] [string] $Password
 )
+
 Import-Module -Name "./Export-SqlQueryModule" -Verbose -Force
 #*********************Begin of using a script*********************
 
 $database = "testdb"
 $server = ".\"
-$connectionString = Get-ConnectionString -Server $server -Database $database
+
+$connectionString = Get-ConnectionString -Server $server -Database $database -Username $Username -Password $Password
 $databaseType = [CodeSanook.SqlGenerator.DatabaseType]::SqlServer
 
 $fileOutputPath = Join-Path -Path $PSScriptRoot -ChildPath "output-script.sql" 

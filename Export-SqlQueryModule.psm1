@@ -45,14 +45,16 @@ function Export-SqlQuery {
 function Get-ConnectionString{
     param(
         [Parameter(Mandatory = $True)] [string] $Server,
-        [Parameter(Mandatory = $True)] [string] $Database
+        [Parameter(Mandatory = $True)] [string] $Database,
+        [Parameter(Mandatory = $False)] [string] $Username,
+        [Parameter(Mandatory = $False)] [string] $Password
     )
 
     if ($Password) {
         #decrypt input password
-        $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($Password)
-        $databaseUserPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
-        $connectionString = "Server=$Server;Database=$Database;User Id=sa; Password=$databaseUserPassword;"
+        #$bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($Password)
+        #$decryptedPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+        $connectionString = "Server=$Server;Database=$Database;User Id=$Username; Password=$Password;"
     }
     else {
         #Trusted Connection Windows user login
