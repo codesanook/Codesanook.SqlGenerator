@@ -1,8 +1,6 @@
-﻿using FluentNHibernate.Cfg;
-using FluentNHibernate.Cfg.Db;
-using NHibernate;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
@@ -21,13 +19,13 @@ namespace CodeSanook.SqlGenerator
         //https://stackoverflow.com/questions/10704462/how-can-i-have-nhibernate-only-generate-the-sql-without-executing-it
         public void Export(ExportOptions options)
         {
-            var sessionFactory = CreateSessionFactory(options);
-            using (var session = sessionFactory.OpenStatelessSession())
+            using (var connection = (SqlConnection)CreateConnection(options))
             using (var streamWriter = new StreamWriter(options.Stream))
             {
-                var connection = (SqlConnection)session.Connection;
                 var command = connection.CreateCommand();
                 command.CommandText = options.Query;
+
+                connection.Open();
                 using (var reader = command.ExecuteReader())
                 {
                     //first row create template and get data
@@ -112,31 +110,20 @@ namespace CodeSanook.SqlGenerator
                     template = template.Replace(match.Value, $"{{{selectedColumn.Index}}}");
                 }
             }
-
             return template;
         }
 
-        private static ISessionFactory CreateSessionFactory(ExportOptions options)
-            => Fluently.Configure()
-                .Database(GetDatabaseConfiguration(options))
-                .Mappings(m => m.FluentMappings.AddFromAssemblyOf<SqlExportTool>())
-                .BuildSessionFactory();
-
-        private static IPersistenceConfigurer GetDatabaseConfiguration(ExportOptions options)
+        private DbConnection CreateConnection(ExportOptions options)
         {
             switch (options.DatabaseType)
             {
                 case DatabaseType.SqlServer:
-                    return GetSqlServerConfiguration(options.ConnectionString);
+                    return new SqlConnection(options.ConnectionString);
+                case DatabaseType.MySql:
+                    throw new NotImplementedException("not implement supporting MySQL yet");
                 default:
-                    throw new InvalidOperationException("Invalid database type.");
+                    throw new InvalidOperationException("No valid database type option");
             }
         }
-
-        private static IPersistenceConfigurer GetSqlServerConfiguration(string connectionString)
-            => MsSqlConfiguration.MsSql2012.ConnectionString(connectionString);
-
-        private static IPersistenceConfigurer GetMySqlConfiguration(string connectionString)
-            => MySQLConfiguration.Standard.ConnectionString(connectionString);
     }
 }

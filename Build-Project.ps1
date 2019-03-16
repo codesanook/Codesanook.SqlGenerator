@@ -1,4 +1,3 @@
-
 function Invoke-MsBuild {
 	param(
 		[Parameter(Mandatory=$True)] [string] $ExePath,
@@ -23,6 +22,7 @@ function Invoke-MsBuild {
 
 #restore nuget
 ./nuget restore "./CodeSanook.SqlGenerator.sln"
+##TODO use VSwhere
 $exePath = "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin\amd64\MSBuild.exe"
 
 $projectRoot = "./CodeSanook.SqlGenerator"

@@ -1,3 +1,19 @@
+$libraryName = "CodeSanook.SqlGenerator"
+
+<#
+./nuget Install $libraryName -DependencyVersion Lowest -OutputDirectory "./package"
+
+$outputDir = Join-Path -Path $PSScriptRoot -ChildPath "$libraryName/bin/Release"
+$assemblyPath = Join-Path -Path $outputDir -ChildPath "$libraryName.dll"
+#>
+
+$outputDir = Join-Path $PSScriptRoot -ChildPath "CodeSanook.SqlGenerator/bin/Release/"
+$assemblyPath = Join-Path -Path $outputDir -ChildPath "$libraryName.dll"
+
+#LoadFrom() look for the dependent DLLs in the same directory
+$assembly = [Reflection.Assembly]::LoadFrom($assemblyPath)   
+$assembly
+
 function Export-SqlQuery {
     param(
         [Parameter(Mandatory = $True)] [string] $ConnectionString, 
@@ -47,3 +63,4 @@ function Get-ConnectionString{
 }
 
 Export-ModuleMember -Function "Export-SqlQuery"
+Export-ModuleMember -Function "Get-ConnectionString"
