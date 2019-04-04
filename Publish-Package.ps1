@@ -18,13 +18,13 @@ $propertiesValue = $properties.Keys | Foreach-Object {
     "$_=$($properties[$_])"
 }
 
-./nuget restore "./$projectName.sln"
+nuget restore "./$projectName.sln"
 
 Get-ChildItem -Path "*.nupkg" | ForEach-Object {
     Remove-Item $_
 }
 
-./nuget pack "./$projectName/$projectName.csproj" -Build -Properties ($propertiesValue -join ";")
+nuget pack "./$projectName/$projectName.csproj" -Build -Properties ($propertiesValue -join ";")
 
 $apiKey = Get-Content -Path $apiKeyFilePath
 if ([string]::IsNullOrEmpty($apiKey)) {
@@ -33,4 +33,4 @@ if ([string]::IsNullOrEmpty($apiKey)) {
 
 $apiKey = $apiKey.Trim();
 $package =  Get-ChildItem -Path "*.nupkg" | Select-Object -First 1
-./nuget push $package -ApiKey $apiKey -Source "https://api.nuget.org/v3/index.json"
+nuget push $package -ApiKey $apiKey -Source "https://api.nuget.org/v3/index.json"
