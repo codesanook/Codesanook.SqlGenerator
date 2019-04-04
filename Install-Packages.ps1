@@ -32,4 +32,5 @@ $framework = $match.Groups["version"].value -replace "\.", ""
 ) | Copy-Item -Destination $outputFolder
 
 GetLatestVersionFilePath -FileName "Export-SqlQuery.ps1" | Copy-Item -Destination "."
+GetLatestVersionFilePath -FileName "Export-SqlQueryModule.psm1" | Copy-Item -Destination "."
 "Install successfully"
