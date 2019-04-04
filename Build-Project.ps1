@@ -16,8 +16,8 @@ function Invoke-MsBuild {
 		$OutputPath, `
 		$Configuration
 	
-	Write-Host $command
-	Invoke-Expression $command
+	"$command"
+	& $command #use call operator
 }
 
 #restore nuget

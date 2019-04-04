@@ -1,31 +1,36 @@
-﻿function GetLatestVersionFilePath($fileName){
-    $allDllPaths = Get-ChildItem -Path "./packages/*" -Include "$fileName" -Recurse
-    $latestVersionOfDllPath = ($allDllPaths | Sort-Object -Property "FullName" -Descending | Select-Object -First 1)
-    $latestVersionOfDllPath
+﻿
+function GetLatestVersionFilePath($FileName, $Framework) {
+    $pattern = if ($framework) { ".*packages.*$Framework.*$FileName" } else { ".*packages.*$FileName" }
+    $allDllPaths = Get-ChildItem -Path "./packages" -Recurse -File
+    $allDllPaths | Where-Object {
+        $_.FullName -match $pattern
+    } | Select-Object -ExpandProperty "FullName" | Sort-Object -Descending | Select-Object -First 1
 }
 
+$nugetPath = "./nuget.exe"
 $libraryName = "CodeSanook.SqlGenerator"
+& $nugetPath Install $libraryName -DependencyVersion Lowest -OutputDirectory "./packages"
 
-$nugetPath = GetLatestVersionFilePath("nuget.exe")
-$nugetPath
-Invoke-Expression -Command "$nugetPath Install $libraryName -DependencyVersion Lowest -OutputDirectory './packages'"
-
-#copy all file  to targ folder
+#copy all file a to target folder
 $outputFolder = "./bin/release"
+Remove-Item $outputFolder -Recurse -Force -ErrorAction Ignore
 New-Item -Path $outputFolder -ItemType Directory -Force
 
- $dllsToCopied = @(
-     GetLatestVersionFilePath("CodeSanook.SqlGenerator.dll")
+$assemblyPath = GetLatestVersionFilePath -FileName "$libraryName.dll"
+"assembly path $assemblyPath"
+$assembly = [Reflection.Assembly]::LoadFrom($assemblyPath)
+$attribute = $assembly.GetCustomAttributes([System.Runtime.Versioning.TargetFrameworkAttribute])
 
-     GetLatestVersionFilePath("FluentNHibernate.dll")
-     GetLatestVersionFilePath("Iesi.Collections.dll")
-     GetLatestVersionFilePath("NHibernate.dll")
-    "./packages/System.ValueTuple.4.5.0/lib/net461/System.ValueTuple.dll"
- )
+$pattern = "version=v(?<version>[\w\.]+)"
+$option = [Text.RegularExpressions.RegexOptions]::IgnoreCase
+$match = [Regex]::Match($attribute.FrameworkName, $pattern, $option);
+$framework = $match.Groups["version"].value -replace "\.", ""
+"framework $framework"
 
- $dllsToCopied | Copy-Item -Destination $outputFolder
+@(
+    GetLatestVersionFilePath -FileName  "$libraryName.dll" -Framework $framework
+    GetLatestVersionFilePath -FileName "System.ValueTuple.dll" -Framework $framework
+) | Copy-Item -Destination $outputFolder
 
-$exportSqlQueryPath =GetLatestVersionFilePath("Export-SqlQuery.ps1")
-$exportSqlQueryPath
-Copy-Item -Path $exportSqlQueryPath  -Destination "./"
-"Install done"
+GetLatestVersionFilePath -FileName "Export-SqlQuery.ps1" | Copy-Item -Destination "."
+"Install successfully"
