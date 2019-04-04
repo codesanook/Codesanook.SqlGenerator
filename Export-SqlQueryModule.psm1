@@ -1,7 +1,8 @@
 $libraryName = "CodeSanook.SqlGenerator"
 $outputDir = Join-Path $PSScriptRoot -ChildPath "CodeSanook.SqlGenerator/bin/Release/"
 $assemblyPath = Join-Path -Path $outputDir -ChildPath "$libraryName.dll"
-#LoadFrom(),search all dependent DLLs in the same directory
+
+#LoadFrom(), search all dependent DLLs in the same directory
 $assembly = [Reflection.Assembly]::LoadFrom($assemblyPath)
 $assembly
 
