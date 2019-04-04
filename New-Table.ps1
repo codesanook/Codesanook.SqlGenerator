@@ -9,8 +9,7 @@ $createTableQuery = @"
         [Money] [decimal](18, 4) NULL
     )
 "@
-
-$databaseName = "company"
+$databaseName = "SqlGenerationExample"
 Push-Location $PSScriptRoot
 Invoke-Sqlcmd -ServerInstance ".\" -Query $createTableQuery -Database $databaseName
 "Create table successfully"

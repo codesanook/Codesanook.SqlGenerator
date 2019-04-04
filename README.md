@@ -147,3 +147,4 @@ CREATE TABLE [dbo].[Users] (
 * [ ] SQL parser to automatic detect an exported table from a query
 * [ ] Orchard plug in
 * [ ] Export create statement with NHibernate Entity class
+* [ ] Install-Packages automatic install nuget command line and vswhere

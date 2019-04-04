@@ -7,9 +7,8 @@ function GetLatestVersionFilePath($FileName, $Framework) {
     } | Select-Object -ExpandProperty "FullName" | Sort-Object -Descending | Select-Object -First 1
 }
 
-$nugetPath = "./nuget.exe"
 $libraryName = "CodeSanook.SqlGenerator"
-& $nugetPath Install $libraryName -DependencyVersion Lowest -OutputDirectory "./packages"
+& nuget Install $libraryName -DependencyVersion Lowest -OutputDirectory "./packages"
 
 #copy all file a to target folder
 $outputFolder = "./bin/release"

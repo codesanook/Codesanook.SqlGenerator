@@ -9,11 +9,10 @@
         <description>To export SQL server</description>
         <releaseNotes>release note</releaseNotes>
         <copyright>Copyright 2018</copyright>
-        <tags>SQL C#</tags>
+        <tags>SQL C# SqlServer MySql</tags>
     </metadata>
     <files>
         <file src="../Export-SqlQuery.ps1" target="tools" />
         <file src="../nuget.exe" target="tools" />
-
     </files>
 </package>

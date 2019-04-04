@@ -1,4 +1,4 @@
-$databaseName = "company"
+$databaseName = "SqlGenerationExample"
 $query = @"
     IF db_id('$databaseName') IS NOT NULL
     BEGIN
