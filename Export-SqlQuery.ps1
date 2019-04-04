@@ -2,7 +2,7 @@
     [Parameter] [SecureString] $Password 
 )
 
-Import-Module -Name Export-SqlQueryModule -Force
+Import-Module -Name .\Export-SqlQueryModule -Force -Verbose
 
 #################### Begin of using a script #################### 
 $database = "SqlGenerationExample"
@@ -37,5 +37,5 @@ Export-SqlQuery `
     -Query $query `
     -Template $template `
     -FilePath $fileOutputPath
-
+$fileOutputPath
 "Successfully"

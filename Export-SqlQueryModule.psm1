@@ -1,10 +1,12 @@
 $libraryName = "CodeSanook.SqlGenerator"
-$outputDir = Join-Path $PSScriptRoot -ChildPath "CodeSanook.SqlGenerator/bin/Release/"
+$outputDir = Join-Path -Path $PSScriptRoot -ChildPath "CodeSanook.SqlGenerator/bin/Release/"
 $assemblyPath = Join-Path -Path $outputDir -ChildPath "$libraryName.dll"
+$assemblyPath
 
 #LoadFrom(), search all dependent DLLs in the same directory
 $assembly = [Reflection.Assembly]::LoadFrom($assemblyPath)
 $assembly
+"assembly loaded"
 
 function Export-SqlQuery {
     param(
@@ -28,10 +30,11 @@ function Export-SqlQuery {
         -ArgumentList @($FilePath, [System.IO.FileMode]::Append, [System.IO.FileAccess]::Write)
     $options.Stream = $fileStream
 
-    # export SQL query and pipe to a file
+    # Export SQL query and pipe to a file
     $tool = New-Object CodeSanook.SqlGenerator.SqlExportTool
     $tool.Export($options)
     $fileStream.Close()
+    "exported"
 }
 
 function Get-ConnectionString {

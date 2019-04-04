@@ -11,7 +11,7 @@ $libraryName = "CodeSanook.SqlGenerator"
 & nuget Install $libraryName -DependencyVersion Lowest -OutputDirectory "./packages"
 
 #copy all file a to target folder
-$outputFolder = "./bin/release"
+$outputFolder = "./$libraryName/bin/release"
 Remove-Item $outputFolder -Recurse -Force -ErrorAction Ignore
 New-Item -Path $outputFolder -ItemType Directory -Force
 

@@ -7,7 +7,7 @@ function Invoke-MsBuild {
         [Parameter(Mandatory = $True)] [string] $Target 
     )
 	
-    & $ExePath "$projectFile" /t:"$Target" /p:OutputPath="$OutputPath" /p:Configuration="$Configuration"
+    & $ExePath "$projectFile" "/t:$Target" "/p:OutputPath=$OutputPath" "/p:Configuration=$Configuration"
     #use call operator
 }
 
