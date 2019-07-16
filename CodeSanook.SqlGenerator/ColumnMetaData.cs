@@ -26,8 +26,6 @@ namespace CodeSanook.SqlGenerator
             });
         }
 
-        private string WrapQuote(string format) => NoWrap ? format : $"'{format}'";
-
         public string Name { get; }
         public Type DotNetType { get; }
         public string SqlType { get; }
@@ -35,6 +33,7 @@ namespace CodeSanook.SqlGenerator
         public bool NoWrap { get; set; }
         private Lazy<string> ValuePlaceHolder { get; }
         private string NullValuePlaceHolder { get; } = "NULL";
+        private string WrapQuote(string format) => NoWrap ? format : $"'{format}'";
 
         public string Format(object value, bool isDBNull)
         {
@@ -43,7 +42,7 @@ namespace CodeSanook.SqlGenerator
             switch (DotNetType.Name)
             {
                 case nameof(String):
-                    //replace content contains ' to '' 
+                    // Replace content that contains ' (single quote) to '' (double quote)
                     return string.Format(ValuePlaceHolder.Value, value.ToString().Replace("'", "''"));
                 case nameof(DateTime):
                     return string.Format(ValuePlaceHolder.Value, ((DateTime)value).ToString("yyyy-MM-dd HH:mm:ss"));

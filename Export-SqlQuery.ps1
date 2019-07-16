@@ -1,36 +1,41 @@
-﻿param(
-    [Parameter] [SecureString] $Password
-)
+﻿# There are three step to get SQL export
+# 1. Create SQL query to get the result of SQL that you want to export
+# 2. Create a template of SQL output, it can be INSERT, UPDATE etc.
+# 3. Call Export-SqlQuery with your SQL query and template.
 
-Import-Module -Name .\Export-SqlQueryModule -Force -Verbose
+# Built-in placeholders are in at template:
+# Get values:
+# #{columnName} for a VALUE of a given column name from a select statement
+# #{col*} for all VALUES in a row as CSV format
+# #{!'columnName} for a VALUE of a given column name from a select statement and not wrap quote
 
-#################### Begin of using a script ####################
-$database = "SqlGenerationExample"
-$server = ".\"
-$connectionString = Get-ConnectionString -Server $server -Database $database
-$databaseType = [CodeSanook.SqlGenerator.DatabaseType]::SqlServer
+# Get column names:
+# ##{col*} for all column NAMES in a row as CSV format.
+# If you want to have a custom column name, you can specify a custom column name in select statment.
 
-$fileOutputPath = Join-Path -Path $PSScriptRoot -ChildPath "output-script.sql"
-Remove-Item -Path $fileOutputPath -Force -ErrorAction Ignore
-
+# Example:
 # Get all users from the example database.
 $query = @"
     SELECT * FROM Users
 "@
 
-# Built-in placeholders are
-# #{columnName} for a value of a given column name from a select statement
-# #{!'columnName} for a value of a given column name from a select statement and not wrap quote
-# #{col*} for CSV of all values in a row
-# ##{col*} for CSV of all column names in a row
 $template = @"
     INSERT INTO [Users]
-        ( [Id], [FirstName], [LastName], [DateOfBirth], [Checked], [Money])
+        ([Id], [FirstName], [LastName], [DateOfBirth], [Checked], [Money])
     VALUES
         (#{Id}, #{FirstName}, #{LastName}, #{DateOfBirth}, #{Checked}, #{Money})
 
 "@
 
+Import-Module -Name .\Export-SqlQueryModule -Force -Verbose
+# Preparing required paramters for Export-Query cmdlet
+$database = "SqlGenerationExample"
+$server = ".\"
+$connectionString = Get-ConnectionString -Server $server -Database $database # Use Trusted Connection
+$databaseType = [CodeSanook.SqlGenerator.DatabaseType]::SqlServer
+
+$fileOutputPath = Join-Path -Path $PSScriptRoot -ChildPath "output-script.sql"
+Remove-Item -Path $fileOutputPath -Force -ErrorAction Ignore
 
 Export-SqlQuery `
     -ConnectionString $connectionString `
@@ -39,4 +44,5 @@ Export-SqlQuery `
     -Template $template `
     -FilePath $fileOutputPath
 $fileOutputPath
-"Successfully"
+
+"Export Successfully"

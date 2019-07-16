@@ -34,6 +34,8 @@ function Export-SqlQuery {
     $tool = New-Object CodeSanook.SqlGenerator.SqlExportTool
     $tool.Export($options)
     $fileStream.Close()
+    $fileStream.Dispose()
+
     "exported"
 }
 

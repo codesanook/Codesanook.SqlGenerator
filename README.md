@@ -134,17 +134,18 @@ CREATE TABLE [dbo].[Users] (
 
 # TO DO
 
-* [x] support SQL Server
+* [x] Support SQL Server
 * [x] PowerShell Script for working with multiple SQL Query
 * [x] MS Build script for easy deployment
-* [x] Case insensitive column name
-* [ ] optimize speed
-* [ ] pagination for large data set
-* [ ] option to allow inserting auto increment ID
-* [ ] support MySQL
-* [ ] Not sure about maximum rows can be exported because everything is in memory now
-* [ ] Make a class library (DLL)
-* [ ] SQL parser to automatic detect an exported table from a query
-* [ ] Orchard plug in
-* [ ] Export create statement with NHibernate Entity class
+* [x] Case insensitive column names
+* [x] Support MySQL
+* [x] Support Sqlite
+* [x] Support Oracle 10
+* [ ] Convert to .NET Standard class library
+* [ ] Orchard plugin
 * [ ] Install-Packages automatic install nuget command line and vswhere
+* [ ] Option to allow inserting auto increment ID
+
+# 3rd party dependencies
+- NHibernate -version 4.0.1.4000
+- Iesi.Collections version 4.0.0.4000

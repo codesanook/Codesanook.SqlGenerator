@@ -1,11 +1,14 @@
-﻿using System;
+﻿using NHibernate;
+using System;
 using System.Collections.Generic;
-using System.Data.Common;
-using System.Data.SqlClient;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using NHibernate.Cfg;
+using NHibernate.Dialect;
+using NHibernate.Driver;
 
 namespace CodeSanook.SqlGenerator
 {
@@ -16,19 +19,29 @@ namespace CodeSanook.SqlGenerator
             RegexOptions.Compiled
         );
 
-        //https://stackoverflow.com/questions/10704462/how-can-i-have-nhibernate-only-generate-the-sql-without-executing-it
         public void Export(ExportOptions options)
         {
-            using (var connection = (SqlConnection)CreateConnection(options))
+            using (var sessionFactory = CreateSessionFactory(options))
+            using (var session = sessionFactory.OpenSession())
+            {
+                Export(session, options);
+            }
+        }
+
+        /// <summary>
+        /// If two methods require two arguments to determine which method is being called and the first parameter of both is the same type.
+        /// There is no way to tell which method is being called when the second missing argument is required to choose the matching method.
+        /// Changing the first parameter on the two methods to be of different types and it works as expected. 
+        /// </summary>
+        public void Export(ISession newSession, ExportOptions options)
+        {
             using (var streamWriter = new StreamWriter(options.Stream))
             {
-                var command = connection.CreateCommand();
+                var command = newSession.Connection.CreateCommand();
                 command.CommandText = options.Query;
-
-                connection.Open();
                 using (var reader = command.ExecuteReader())
                 {
-                    //first row create template and get data
+                    // First row create template and get data
                     var script = new StringBuilder();
                     string template = null;
                     ColumnMetaData[] columnMetaDatas = null;
@@ -39,7 +52,7 @@ namespace CodeSanook.SqlGenerator
                         AppendScriptValues(reader, columnMetaDatas, template, script);
                     }
 
-                    //next row get data only
+                    // Next row get data only
                     while (reader.Read())
                     {
                         AppendScriptValues(reader, columnMetaDatas, template, script);
@@ -49,10 +62,10 @@ namespace CodeSanook.SqlGenerator
             }
         }
 
-        private static ColumnMetaData[] GetColumnMetaDatas(SqlDataReader reader)
+        private static ColumnMetaData[] GetColumnMetaDatas(IDataReader reader)
         {
-            //https://stackoverflow.com/a/27200892/1872200
-            //https://ayende.com/blog/4548/nhibernate-streaming-large-result-sets
+            // https://stackoverflow.com/a/27200892/1872200
+            // https://ayende.com/blog/4548/nhibernate-streaming-large-result-sets
             return Enumerable.Range(0, reader.FieldCount)
                 .Select(columnIndex =>
                 new ColumnMetaData(
@@ -63,7 +76,7 @@ namespace CodeSanook.SqlGenerator
                 )).ToArray();
         }
 
-        private static void AppendScriptValues(SqlDataReader reader, ColumnMetaData[] columnMetaDatas, string template, StringBuilder script)
+        private static void AppendScriptValues(IDataReader reader, ColumnMetaData[] columnMetaDatas, string template, StringBuilder script)
         {
             var columnValues = new object[columnMetaDatas.Length];
             reader.GetValues(columnValues);
@@ -86,20 +99,19 @@ namespace CodeSanook.SqlGenerator
                 var columnName = match.Groups["columnName"].Value; ;
                 if (prefix == "##" && columnName.ToLower() == "col*")
                 {
-                    //get CSV names of all columns
+                    // Get CSV names of all columns
                     var columnNames = columns.Select(column => $"[{column.Name}]");
                     template = template.Replace(match.Value, string.Join(", ", columnNames));
                 }
                 else if (columnName.ToLower() == "col*")
                 {
-                    //get CSV values of all columns
-
+                    // Get CSV values of all columns
                     var columnPlaceholderIndexes = columns.Select(column => $"{{{column.Index}}}");
                     template = template.Replace(match.Value, string.Join(", ", columnPlaceholderIndexes));
                 }
                 else
                 {
-                    //get a value of a given column name
+                    // Get a value of a given column name
                     var selectedColumn = columns.SingleOrDefault(column => column.Name == columnName);
                     if (selectedColumn == null)
                     {
@@ -113,17 +125,35 @@ namespace CodeSanook.SqlGenerator
             return template;
         }
 
-        private DbConnection CreateConnection(ExportOptions options)
+        private ISessionFactory CreateSessionFactory(ExportOptions options)
         {
             switch (options.DatabaseType)
             {
                 case DatabaseType.SqlServer:
-                    return new SqlConnection(options.ConnectionString);
+                    return CreateSessionFactory<MsSql2008Dialect, SqlClientDriver>(options.ConnectionString);
                 case DatabaseType.MySql:
-                    throw new NotImplementedException("not implement supporting MySQL yet");
+                    return CreateSessionFactory<MySQL55Dialect, MySqlDataDriver>(options.ConnectionString);
+                case DatabaseType.SQLite:
+                    return CreateSessionFactory<SQLiteDialect, SQLite20Driver>(options.ConnectionString);
+                case DatabaseType.Oracle:
+                    return CreateSessionFactory<Oracle10gDialect, OracleDataClientDriver>(options.ConnectionString);
                 default:
                     throw new InvalidOperationException("No valid database type option");
             }
+        }
+
+        private ISessionFactory CreateSessionFactory<TDialect, TDriver>(string connectionString)
+            where TDialect : Dialect
+            where TDriver : DriverBase
+        {
+            Configuration cfg = new Configuration();
+            cfg.Properties.Add(NHibernate.Cfg.Environment.ConnectionProvider, typeof(NHibernate.Connection.DriverConnectionProvider).AssemblyQualifiedName);
+            cfg.Properties.Add(NHibernate.Cfg.Environment.ConnectionString, connectionString);
+
+            cfg.Properties.Add(NHibernate.Cfg.Environment.Dialect, typeof(TDialect).AssemblyQualifiedName);
+            cfg.Properties.Add(NHibernate.Cfg.Environment.ConnectionDriver, typeof(TDriver).AssemblyQualifiedName);
+
+            return cfg.BuildSessionFactory();
         }
     }
 }

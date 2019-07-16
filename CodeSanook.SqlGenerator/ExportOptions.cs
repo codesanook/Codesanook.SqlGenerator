@@ -5,7 +5,9 @@ namespace CodeSanook.SqlGenerator
     public enum DatabaseType
     {
         SqlServer,
-        MySql
+        MySql,
+        SQLite,
+        Oracle
     }
 
     public class ExportOptions
