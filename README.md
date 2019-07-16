@@ -43,6 +43,18 @@ Before we can start, you need to have the following software installed on your c
 * PowerShell
 * .NET Framework developer package, you can install with
 
+## Overview of how it work
+```
+          Prepare SELECT Statement
+                     +
+                     |
+                     v
+ Set output template in Export-SqlQuery.ps1
+                     +
+                     |
+                     v
+Execute Export-SqlQuery.ps1 with PowerShell
+```
 
 ## How to use Export-SqlQuery.ps1
 
