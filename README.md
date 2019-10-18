@@ -11,13 +11,15 @@ to export your SQL query result to a set of insert statement.
 SQL script file
 * The program can only use with Windows client now.
 
-## Use case in Thai language
-* ครื่องมือสำหรับ export SQL query to insert statement ครับ
+## Use case in Thai language 
+* Codesanook.SqlGenerator
+* เครื่องมือสำหรับ export SQL query to SQL statement เช่น insert, update ครับ
 * สำหรับท่านใดที่ต้องการ export SQL query select statement เพื่อดึงข้อมูลบางส่วนจาก production database
 แล้วสร้าง insert statement ให้โดยอัตโนมัติ
-* ตัวอย่างเช่น database ใน production ใหญ่มาก แต่เราต้องการข้อมูลเพียงบางส่วน เช่นเฉพาะ data ที่เกี่ยวข้องกับ user จำนวนหนึ่ง
-* เราก็ทำการสร้าง select statment ของข้อมูลที่เกี่ยวข้องทั้งหมด ตัว tool (Export-SqlQuery.ps1 หรือ CodeSanook.SqlGenerator.dll)
-ก็จะสร้าง insert statment ให้เราเอาไปใช้งานได้เลยครับ เช่น นำไป execute ใน develop machine
+* สร้าง SQL Statement ในการดึงข้อมูลได้อย่างอิสระ
+* ตัวอย่างเช่น database ใน production ใหญ่มาก แต่เราต้องการดึงข้อมูลเพียงบางส่วน เช่น เฉพาะ data ที่เกี่ยวข้องกับ user จำนวนหนึ่ง
+* เราก็สร้าง select statement ของข้อมูลที่เกี่ยวข้องที่ต้องการทั้งหมด และใช้ tool Export-SqlQuery.ps1 หรือ CodeSanook.SqlGenerator.dll
+เพื่อสร้าง insert statement ให้เราเอาไปใช้งานได้เลยครับ จะนำไป execute ใน develop machine ก็ได้
 * github project URL [https://github.com/codesanook/CodeSanook.SqlGenerator](https://github.com/codesanook/CodeSanook.SqlGenerator)
 
 ## Benefit and motivation
